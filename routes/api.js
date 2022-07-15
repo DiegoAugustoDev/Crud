@@ -1,34 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const bodyParser = require("body-parser");
-const cors = require("cors")
-const posts = require("../model/posts")
+const postController = require("../controlles/postController")
+const methodOverrride = require("method-override")
 
-const options = {
-    origin: "http://localhost:3000"
-}
+router.use(methodOverrride("_method"))
 
-router.use(cors(options))
+router.get("/edit/:id", postController.loadPost)
+router.get("/", postController.allPosts)
 
-router.get("/all", (req,res)=>{
-    res.json(JSON.stringify(posts.getAll()));
-})
 
-router.post("/new",bodyParser.json(), (req,res)=>{
+router.post("/", express.urlencoded({extended:true}), postController.addPost)
+router.post("/edit/:id", express.urlencoded({extended:true}), postController.editPost)
 
-    let title = req.body.title;
-    let description = req.body.description;
-
-    posts.newPost(title,description);
-    res.send("Post adicionado");
-
-})
-
-router.delete("/delete/:id",(req,res)=>{
-   const {id} = req.params.id
-   posts.deletePost()
-   res.send("Post deletado")
-})
-
+router.delete("/:id", postController.deletePost)
+router.delete("/", express.urlencoded({extended:true}), postController.deletePost)
 
 module.exports=router;
